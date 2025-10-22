@@ -1,6 +1,7 @@
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import gsap from 'gsap';
 
 // Helper function to create our soft, circular particle texture
 const createCircleTexture = () => {
@@ -68,8 +69,9 @@ const fragmentShader = `
 `;
 
 
-export default function Particles({ count = 5000 }) {
-  const shaderRef = useRef();
+export default function Particles({ count = 5000, activePage }) {
+  const pointsRef = useRef();
+  const materialRef = useRef();
 
   // Generate attributes for each particle: position, opacity, and size
   const { positions, opacities, sizes } = useMemo(() => {
@@ -101,15 +103,29 @@ export default function Particles({ count = 5000 }) {
   const texture = useMemo(() => createCircleTexture(), []);
 
   // Animate the whole system
+  useEffect(() => {
+    const targetColor = activePage === 'home' 
+      ? new THREE.Color('#ffffff') 
+      : new THREE.Color('#000000');
+    
+    gsap.to(materialRef.current.uniforms.uColor.value, {
+      r: targetColor.r,
+      g: targetColor.g,
+      b: targetColor.b,
+      duration: 1.5,
+      ease: 'power2.inOut',
+    });
+  }, [activePage]);
+
   useFrame((state, delta) => {
-    if (shaderRef.current) {
-      shaderRef.current.rotation.y += delta / 25;
-      shaderRef.current.rotation.x += delta / 30;
+    if (pointsRef.current) {
+      pointsRef.current.rotation.y += delta / 25;
+      pointsRef.current.rotation.x += delta / 30;
     }
   });
 
   return (
-    <points ref={shaderRef}>
+    <points ref={pointsRef}>
       <bufferGeometry>
         {/* Pass our generated arrays as attributes to the shaders */}
         <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
@@ -117,9 +133,9 @@ export default function Particles({ count = 5000 }) {
         <bufferAttribute attach="attributes-aSize" count={sizes.length} array={sizes} itemSize={1} />
       </bufferGeometry>
       <shaderMaterial
-        // Pass uniforms (global variables) to the shaders
+        ref={materialRef}
         uniforms={{
-          uSize: { value: 15.0 }, // Base size of particles
+          uSize: { value: 15.0 },
           uColor: { value: new THREE.Color('#ffffff') },
           uTexture: { value: texture },
         }}
