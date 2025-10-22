@@ -1,0 +1,41 @@
+.navbar {
+  /* Positioning */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100; /* Ensure it's on top of the canvas */
+
+  /* Layout */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 50px;
+
+  /* Styling */
+  color: white;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  
+  /* VERY IMPORTANT: Allow mouse events to pass through the container */
+  pointer-events: none;
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  gap: 30px; /* Spacing between links */
+}
+
+.navbar a {
+  /* Re-enable pointer events for the links themselves */
+  pointer-events: auto; 
+  
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.navbar a:hover {
+  color: #a8c0ff; /* A color from your sphere gradient for consistency */
+}
